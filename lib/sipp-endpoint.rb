@@ -83,14 +83,14 @@ class SIPpEndpoint
       # In some situations, bono will allow a message through if the IP, port
       # and username match a recent REGISTER.  Since ellis allocates numbers
       # pretty deterministically, this happens quite often.
-      register_flow << recv("200", optional: true, next_label: label_id, save_nat_ip: true)
+      register_flow << recv("200", optional: true, next_label: label_id)
       register_flow << recv("401", save_auth: true)
     else
       throw "Unrecognized transport #{@transport}"
     end
 
     register_flow << send("REGISTER", auth_header: true)
-    register_flow << recv("200", save_nat_ip: true)
+    register_flow << recv("200")
     register_flow << SIPpPhase.new("__label", self, label_value: label_id)
     register_flow
   end
