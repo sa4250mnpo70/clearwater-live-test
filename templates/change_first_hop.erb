@@ -1,0 +1,9 @@
+  <nop>
+    <action>
+      <assignstr assign_to="url" value="[last_Record-Route:]" />
+      <ereg regexp="sip:([-a-zA-Z0-9\.]+):([0-9]+);transport=([A-Z]+)" search_in="var" check_it="true" assign_to="dummy,host,port,transport" variable="url"/>
+      <setdest host="[$host]" port="[$port]" protocol="[$transport]" />
+    </action>
+  </nop>
+  <Reference variables="dummy" />
+

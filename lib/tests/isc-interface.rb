@@ -87,16 +87,17 @@ ASTestDefinition.new("ISC Interface - Terminating") do |t|
     [
       sip_caller.send("INVITE", target: sip_callee, emit_trusted: true),
       sip_caller.recv("100"),
-      mock_as.recv("INVITE", extract_uas_via: true),
+      mock_as.recv("INVITE", extract_uas_via: true, rrs: true),
       mock_as.send("200-SDP", target: sip_caller, to: sip_callee, contact: mock_as, method: "INVITE"),
+      SIPpPhase.new("change_first_hop", mock_as),
       sip_caller.recv("200", rrs: true),
       sip_caller.send("ACK", in_dialog: true),
-      # Subsequent requests do not make it back to the mock_as
-      #mock_as.recv("ACK"),
-      #SIPpPhase.new("pause", sip_caller, timeout: 1000),
-      #sip_caller.send("BYE", in_dialog: true),
-      #mock_as.recv("BYE", extract_uas_via: true),
-      #sip_callee2.send("200", target: sip_caller, method: "BYE", emit_trusted: true, call_number: 2),
+      mock_as.recv("ACK"),
+      SIPpPhase.new("pause", sip_caller, timeout: 1000),
+      sip_caller.send("BYE", in_dialog: true),
+      mock_as.recv("BYE", extract_uas_via: true),
+      mock_as.send("200", target: sip_caller, method: "BYE", emit_trusted: true),
+      sip_caller.recv("200")
     ] +
     sip_caller.unregister +
     sip_callee.unregister
