@@ -13,9 +13,9 @@
       CSeq: <%= defined?(cseq) ? cseq : "[cseq]" %> <%= method %>
       Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
       <% if defined?(contact) %>
-        Contact: <sip:<%= contact.username %>@<%= contact.domain %><%= defined?(contact.port) ? ":#{contact.port}" : "" %>>;+sip.ice
+        Contact: <sip:<%= contact.username %>@<%= contact.domain %><%= defined?(contact.port) ? ":#{contact.port}" : "" %>;transport=[transport]>;+sip.ice
       <% else %>
-      Contact: <sip:<%= sender.username %>@[$nat_ip_addr]:[$nat_port];transport=[transport];ob>;+sip.ice
+      Contact: <sip:<%= sender.username %>@[local_ip]:[local_port];transport=[transport];ob>;+sip.ice
       <% end %>
       Supported: replaces, 100rel, timer, norefersub
       Session-Expires: 1800;refresher=uac
@@ -48,3 +48,4 @@
       a=candidate:R1717defb 2 UDP 16777214 23.23.222.251 36110 typ relay raddr 192.91.191.29 rport 57129
     ]]>
   </send>
+
