@@ -216,7 +216,7 @@ class TestDefinition
       fail "No scenario file" if s[:scenario_file].nil?
 
       @deployment = ENV['PROXY'] if ENV['PROXY']
-      transport_flag = s[:element_type] == :as ? "t1" : { udp: "u1", tcp: "t1" }[@transport]
+      transport_flag = s[:element_type] == :as ? "tn" : { udp: "u1", tcp: "t1" }[@transport]
       cmd = "sudo TERM=xterm ./sipp -m 1 -t #{transport_flag} --trace_msg --trace_err -max_socket 100 -sf \"#{s[:scenario_file]}\" #{@deployment}"
       cmd += " -p 5070" if s[:element_type] == :as
       Process.spawn(cmd, :out => "/dev/null", :err => "#{s[:scenario_file]}.err")
