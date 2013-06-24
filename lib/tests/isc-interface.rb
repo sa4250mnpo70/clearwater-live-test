@@ -104,3 +104,29 @@ ASTestDefinition.new("ISC Interface - Terminating") do |t|
   )
 end
 
+ASTestDefinition.new("ISC Interface - Originating") do |t|
+  mock_as = t.add_mock_as(ENV['HOSTNAME'], 5070)
+  sip_callee = t.add_sip_endpoint
+
+  t.set_scenario(
+    sip_callee.register +
+    [
+      mock_as.send("INVITE", target: sip_callee),
+      sip_callee.recv("INVITE", rrs: true),
+      sip_callee.send("100", target: mock_as, method: "INVITE"),
+      sip_callee.send("180", target: mock_as, method: "INVITE"),
+      mock_as.recv("180"),
+      sip_callee.send("200-SDP", target: mock_as, method: "INVITE"),
+      mock_as.recv("200", rrs: true),
+      mock_as.send("ACK", in_dialog: true),
+      sip_callee.recv("ACK"),
+      SIPpPhase.new("pause", sip_callee, timeout: 1000),
+      mock_as.send("BYE", target: sip_callee),
+      sip_callee.recv("BYE"),
+      sip_callee.send("200", target: mock_as, method: "BYE"),
+      mock_as.recv("200")
+    ] +
+    sip_callee.unregister
+  )
+end
+

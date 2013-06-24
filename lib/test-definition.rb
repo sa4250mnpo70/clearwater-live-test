@@ -215,10 +215,16 @@ class TestDefinition
     sipp_pids = sipp_scripts.map do |s|
       fail "No scenario file" if s[:scenario_file].nil?
 
-      @deployment = ENV['PROXY'] if ENV['PROXY']
-      transport_flag = s[:element_type] == :as ? "tn" : { udp: "u1", tcp: "t1" }[@transport]
-      cmd = "sudo TERM=xterm ./sipp -m 1 -t #{transport_flag} --trace_msg --trace_err -max_socket 100 -sf \"#{s[:scenario_file]}\" #{@deployment}"
-      cmd += " -p 5070" if s[:element_type] == :as
+      if s[:element_type] == :as
+        transport_flag = "-t tn"
+        remote = "sprout.#{@deployment}:5058"
+        local_port = "-p 5070"
+      else
+        transport_flag = { udp: "-t u1", tcp: "-t t1" }[@transport]
+        remote = ENV['PROXY'] || @deployment
+        local_port = ""
+      end
+      cmd = "sudo TERM=xterm ./sipp -m 1 #{transport_flag} #{local_port} --trace_msg --trace_err -max_socket 100 -sf \"#{s[:scenario_file]}\" #{remote}"
       Process.spawn(cmd, :out => "/dev/null", :err => "#{s[:scenario_file]}.err")
     end
     fail if sipp_pids.any? { |pid| pid.nil? }
@@ -226,7 +232,7 @@ class TestDefinition
   end
 
   def get_diags
-    Dir["scripts/#{@name} - #{@transport.to_s.upcase}*"]
+    Dir["scripts/#{@name} - #{@transport.to_s.upcase}*"].sort
   end
 
   def clear_diags
